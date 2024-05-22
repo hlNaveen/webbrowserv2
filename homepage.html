@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encro Browser Home</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            background-size: 200% 200%;
+            animation: gradientAnimation 15s ease infinite;
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .title {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: fadeIn 2s ease;
+        }
+
+        .search-bar {
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            font-size: 18px;
+            background-color: rgba(255, 255, 255, 0.7); /* Light background for input */
+            color: #333; /* Dark text color for input */
+        }
+
+        .shortcuts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .shortcut {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent background for shortcuts */
+            padding: 15px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shortcut:hover {
+            background-color: rgba(255, 255, 255, 0.5); /* Lighten background on hover */
+            transform: scale(1.1); /* Scale up on hover */
+        }
+
+        .shortcut img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+        }
+
+        .shortcut p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .shortcut a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Encro</div>
+    <div class="search-bar">
+        <input type="text" placeholder="Search the web" id="searchInput">
+    </div>
+    <div class="shortcuts">
+        <div class="shortcut">
+            <a href="https://www.google.com">
+                <img src="https://www.google.com/images/branding/product/ico/googleg_lodp.ico" alt="Google">
+                <p>Google</p>
+            </a>
+        </div>
+        <div class="shortcut">
+            <a href="https://www.youtube.com">
+                <img src="https://www.youtube.com/s/desktop/8b2ff7e2/img/favicon_32x32.png" alt="YouTube">
+                <p>YouTube</p>
+            </a>
+        </div>
+        <div class="shortcut">
+            <a href="https://www.facebook.com">
+                <img src="https://static.xx.fbcdn.net/rsrc.php/yD/r/d4ZIVX-5C-b.ico" alt="Facebook">
+                <p>Facebook</p>
+            </a>
+        </div>
+        <div class="shortcut">
+            <a href="https://www.twitter.com">
+                <img src="https://abs.twimg.com/favicons/twitter.ico" alt="Twitter">
+                <p>Twitter</p>
+            </a>
+        </div>
+        <!-- Add more shortcuts as needed -->
+    </div>
+    <script>
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                let query = e.target.value;
+                window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+            }
+        });
+    </script>
+</body>
+</html>
