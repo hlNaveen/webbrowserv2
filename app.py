@@ -3,8 +3,11 @@ import os
 import math
 from PyQt5.QtCore import QUrl, Qt, QTimer, QSize, QPropertyAnimation, QTime, QThread, pyqtSignal
 from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLineEdit, QToolBar, QSizePolicy, QLabel, QGraphicsOpacityEffect, QMenuBar, QMenu, QFileDialog, QProgressDialog, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QLineEdit, QToolBar, QSizePolicy, QLabel, QGraphicsOpacityEffect, QMenuBar, QMenu, QFileDialog, QProgressDialog, QMessageBox, QInputDialog
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile, QWebEngineDownloadItem
+
+# Import the transformers library
+from transformers import pipeline
 
 class DownloadThread(QThread):
     progress_signal = pyqtSignal(int, int, float)  # received, total, elapsed_time
@@ -27,6 +30,25 @@ class DownloadThread(QThread):
     def download_finished(self):
         self.finished_signal.emit(self.download_item.state() == QWebEngineDownloadItem.DownloadCompleted)
 
+class AIFunctions:
+    def __init__(self):
+        # Initialize the pipelines for different AI tasks
+        self.summarizer = pipeline("summarization")
+        self.sentiment_analyzer = pipeline("sentiment-analysis")
+        self.qa_pipeline = pipeline("question-answering")
+
+    def summarize_text(self, text):
+        summary = self.summarizer(text, max_length=130, min_length=30, do_sample=False)
+        return summary[0]['summary_text']
+
+    def analyze_sentiment(self, text):
+        sentiment = self.sentiment_analyzer(text)
+        return sentiment[0]['label']
+
+    def answer_question(self, context, question):
+        answer = self.qa_pipeline(question=question, context=context)
+        return answer['answer']
+
 class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -35,6 +57,9 @@ class Browser(QMainWindow):
         self.browser.setUrl(QUrl.fromLocalFile(home_page_path))
         self.setCentralWidget(self.browser)
         self.showMaximized()
+
+        # Initialize AI functions
+        self.ai_functions = AIFunctions()
 
         # Enable/disable specific features for performance
         settings = self.browser.settings()
@@ -103,6 +128,24 @@ class Browser(QMainWindow):
         profile = QWebEngineProfile.defaultProfile()
         profile.downloadRequested.connect(self.handle_download)
 
+        # AI Toolbar
+        ai_toolbar = QToolBar("AI Tools")
+        ai_toolbar.setMovable(False)
+        ai_toolbar.setStyleSheet("background-color: #F7F7F7; border: none;")
+        self.addToolBar(Qt.BottomToolBarArea, ai_toolbar)
+
+        summarize_btn = QAction("Summarize", self)
+        summarize_btn.triggered.connect(self.summarize_page)
+        ai_toolbar.addAction(summarize_btn)
+
+        sentiment_btn = QAction("Analyze Sentiment", self)
+        sentiment_btn.triggered.connect(self.analyze_page_sentiment)
+        ai_toolbar.addAction(sentiment_btn)
+
+        qa_btn = QAction("Ask Question", self)
+        qa_btn.triggered.connect(self.ask_question)
+        ai_toolbar.addAction(qa_btn)
+
     def show_name_with_fade(self):
         self.label = QLabel('Enrco', self)
         self.label.setAlignment(Qt.AlignCenter)
@@ -151,12 +194,16 @@ class Browser(QMainWindow):
 
             # Create a progress dialog
             progress_dialog = QProgressDialog("Downloading...", "Cancel", 0, 100, self)
-            progress_dialog.setWindowTitle("Download Progress")
+            progress_dialog.setWindowTitle("Download")
             progress_dialog.setWindowModality(Qt.WindowModal)
             progress_dialog.setMinimumDuration(0)
+            progress_dialog.setValue(0)
+            progress_dialog.setAutoClose(False)
+            progress_dialog.setAutoReset(False)
+            progress_dialog.canceled.connect(download_item.cancel)
             progress_dialog.show()
 
-            # Start a thread to handle the download progress
+            # Create a download thread to track the progress
             self.download_thread = DownloadThread(download_item)
             self.download_thread.progress_signal.connect(lambda received, total, elapsed: self.update_progress(progress_dialog, received, total, elapsed))
             self.download_thread.finished_signal.connect(lambda success: self.finish_download(progress_dialog, success))
@@ -187,6 +234,23 @@ class Browser(QMainWindow):
             QMessageBox.information(self, "Download Completed", "The file has been downloaded successfully.")
         else:
             QMessageBox.warning(self, "Download Failed", "The file could not be downloaded.")
+
+    def summarize_page(self):
+        page_text = self.browser.page().toPlainText()
+        summary = self.ai_functions.summarize_text(page_text)
+        QMessageBox.information(self, "Page Summary", summary)
+
+    def analyze_page_sentiment(self):
+        page_text = self.browser.page().toPlainText()
+        sentiment = self.ai_functions.analyze_sentiment(page_text)
+        QMessageBox.information(self, "Sentiment Analysis", f"Sentiment: {sentiment}")
+
+    def ask_question(self):
+        question, ok = QInputDialog.getText(self, "Ask a Question", "Enter your question:")
+        if ok and question:
+            page_text = self.browser.page().toPlainText()
+            answer = self.ai_functions.answer_question(page_text, question)
+            QMessageBox.information(self, "Answer", answer)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
