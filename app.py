@@ -78,29 +78,29 @@ class Browser(QMainWindow):
         navbar.setIconSize(icon_size)
 
         # Previous Button
-        prev_btn = QAction(QIcon('icons/previous.png'), '', self)
+        prev_btn = QAction(QIcon.fromTheme('go-previous'), '', self)
         prev_btn.setToolTip('Go to the previous page')
         prev_btn.triggered.connect(self.browser.back)
         navbar.addAction(prev_btn)
 
         # Next Button
-        next_btn = QAction(QIcon('icons/next.png'), '', self)
+        next_btn = QAction(QIcon.fromTheme('go-next'), '', self)
         next_btn.setToolTip('Go to the next page')
         next_btn.triggered.connect(self.browser.forward)
         navbar.addAction(next_btn)
 
-        reload_btn = QAction(QIcon('icons/refresh.png'), '', self)
+        reload_btn = QAction(QIcon.fromTheme('view-refresh'), '', self)
         reload_btn.setToolTip('Reload the current page')
         reload_btn.triggered.connect(self.browser.reload)
         navbar.addAction(reload_btn)
 
-        home_btn = QAction(QIcon('icons/home.png'), '', self)
+        home_btn = QAction(QIcon.fromTheme('go-home'), '', self)
         home_btn.setToolTip('Go to the home page')
         home_btn.triggered.connect(self.navigate_home)
         navbar.addAction(home_btn)
 
         # New Page Button
-        new_page_btn = QAction(QIcon('icons/new_page.png'), '', self)
+        new_page_btn = QAction(QIcon.fromTheme('document-new'), '', self)
         new_page_btn.setToolTip('Open a new page')
         new_page_btn.triggered.connect(self.navigate_new_page)
         navbar.addAction(new_page_btn)
@@ -285,11 +285,6 @@ if __name__ == '__main__':
     font = QFont('Helvetica Neue', 12)
     app.setFont(font)
     app.setStyle('Fusion')
-
-    # Use Chromium backend for QtWebEngine
-    from PyQt5.QtWebEngineWidgets import QWebEngineSettings
-    QWebEngineSettings.defaultSettings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
-
 
     window = Browser()
     app.exec_()
