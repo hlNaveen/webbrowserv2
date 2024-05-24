@@ -13,13 +13,14 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f5f5f7;
-            font-family: Arial, sans-serif;
+            background-color: #f0f0f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #333;
         }
 
         .title {
             font-size: 3em;
+            font-weight: 600;
             margin-bottom: 20px;
             color: #333;
         }
@@ -40,6 +41,13 @@
             background-color: #fff;
             color: #333;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            border-color: #007bff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            outline: none;
         }
 
         .shortcuts {
@@ -63,6 +71,7 @@
             justify-content: center;
             align-items: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .shortcut:hover {
@@ -86,15 +95,112 @@
             text-decoration: none;
             color: inherit;
         }
+
+        .shortcut .remove-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 12px;
+            display: none;
+        }
+
+        .shortcut.edit-mode .remove-button {
+            display: flex;
+        }
+
+        .edit-button {
+            margin-top: 20px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .edit-button img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .edit-button:hover {
+            background-color: #0056b3;
+        }
+
+        .edit-form {
+            display: none;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .edit-form input, .edit-form button {
+            margin-top: 10px;
+            padding: 10px;
+            width: calc(100% - 22px);
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .edit-form input:focus {
+            border-color: #007bff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            outline: none;
+        }
+
+        .edit-form button {
+            cursor: pointer;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .edit-form button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
-    <div class="title">Encro</div>
+    <div class="title">Enrco</div>
     <div class="search-bar">
         <input type="text" placeholder="Search the web" id="searchInput">
     </div>
     <div class="shortcuts" id="shortcuts">
         <!-- Shortcuts will be injected here dynamically -->
+    </div>
+    <button class="edit-button" id="editButton">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/edit.png" alt="Edit">
+    </button>
+    <div class="edit-form" id="editForm">
+        <input type="text" placeholder="Name" id="shortcutName">
+        <input type="text" placeholder="Domain" id="shortcutDomain">
+        <button id="addShortcutButton">Add Shortcut</button>
     </div>
     <script>
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
@@ -103,29 +209,83 @@
                 window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
             }
         });
-
-        const shortcuts = [
+    
+        let shortcuts = [
             { name: 'Google', domain: 'google.com' },
             { name: 'YouTube', domain: 'youtube.com' },
             { name: 'Facebook', domain: 'facebook.com' },
             { name: 'Twitter', domain: 'twitter.com' }
         ];
-
+    
         const shortcutsContainer = document.getElementById('shortcuts');
-
-        shortcuts.forEach(shortcut => {
-            const shortcutElement = document.createElement('div');
-            shortcutElement.classList.add('shortcut');
-
-            const imgUrl = `https://logo.clearbit.com/${shortcut.domain}`;
-            shortcutElement.innerHTML = `
-                <a href="https://${shortcut.domain}">
-                    <img src="${imgUrl}" alt="${shortcut.name}">
-                    <p>${shortcut.name}</p>
-                </a>
-            `;
-            shortcutsContainer.appendChild(shortcutElement);
+    
+        function renderShortcuts() {
+            shortcutsContainer.innerHTML = '';
+            shortcuts.forEach((shortcut, index) => {
+                const shortcutElement = document.createElement('div');
+                shortcutElement.classList.add('shortcut');
+    
+                const imgUrl = `https://logo.clearbit.com/${shortcut.domain}`;
+                shortcutElement.innerHTML = `
+                    <a href="https://${shortcut.domain}">
+                        <img src="${imgUrl}" alt="${shortcut.name}">
+                        <p>${shortcut.name}</p>
+                    </a>
+                    <button class="remove-button" data-index="${index}">&times;</button>
+                `;
+                shortcutsContainer.appendChild(shortcutElement);
+            });
+            addRemoveButtonEventListeners();
+        }
+    
+        function addRemoveButtonEventListeners() {
+            const removeButtons = document.querySelectorAll('.remove-button');
+            removeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    shortcuts.splice(index, 1);
+                    renderShortcuts();
+                });
+            });
+        }
+    
+        renderShortcuts();
+    
+        document.getElementById('editButton').addEventListener('click', function() {
+            const editForm = document.getElementById('editForm');
+            const shortcutsElements = document.querySelectorAll('.shortcut');
+            editForm.style.display = editForm.style.display === 'none' ? 'block' : 'none';
+            shortcutsElements.forEach(element => {
+                element.classList.toggle('edit-mode');
+            });
+            // Remove edit-mode class from all shortcuts if edit mode is exited
+            if (editForm.style.display === 'none') {
+                shortcutsElements.forEach(element => {
+                    element.classList.remove('edit-mode');
+                });
+            }
+        });
+    
+        document.getElementById('addShortcutButton').addEventListener('click', function() {
+            const nameInput = document.getElementById('shortcutName');
+            const domainInput = document.getElementById('shortcutDomain');
+            const newShortcut = { name: nameInput.value, domain: domainInput.value };
+    
+            if (newShortcut.name && newShortcut.domain) {
+                shortcuts.push(newShortcut);
+                renderShortcuts();
+                nameInput.value = '';
+                domainInput.value = '';
+                document.getElementById('editForm').style.display = 'none';
+                const shortcutsElements = document.querySelectorAll('.shortcut');
+                shortcutsElements.forEach(element => {
+                    element.classList.remove('edit-mode');
+                });
+            } else {
+                alert('Please fill in both fields');
+            }
         });
     </script>
+    
 </body>
 </html>

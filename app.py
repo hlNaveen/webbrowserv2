@@ -78,29 +78,35 @@ class Browser(QMainWindow):
         navbar.setIconSize(icon_size)
 
         # Previous Button
-        prev_btn = QAction(QIcon.fromTheme('go-previous'), 'Previous', self)
+        prev_btn = QAction(QIcon('icons/previous.png'), '', self)
+        prev_btn.setToolTip('Go to the previous page')
         prev_btn.triggered.connect(self.browser.back)
         navbar.addAction(prev_btn)
 
         # Next Button
-        next_btn = QAction(QIcon.fromTheme('go-next'), 'Next', self)
+        next_btn = QAction(QIcon('icons/next.png'), '', self)
+        next_btn.setToolTip('Go to the next page')
         next_btn.triggered.connect(self.browser.forward)
         navbar.addAction(next_btn)
 
-        reload_btn = QAction(QIcon.fromTheme('view-refresh'), 'Reload', self)
+        reload_btn = QAction(QIcon('icons/refresh.png'), '', self)
+        reload_btn.setToolTip('Reload the current page')
         reload_btn.triggered.connect(self.browser.reload)
         navbar.addAction(reload_btn)
 
-        home_btn = QAction(QIcon.fromTheme('go-home'), 'Home', self)
+        home_btn = QAction(QIcon('icons/home.png'), '', self)
+        home_btn.setToolTip('Go to the home page')
         home_btn.triggered.connect(self.navigate_home)
         navbar.addAction(home_btn)
 
         # New Page Button
-        new_page_btn = QAction(QIcon.fromTheme('document-new'), 'New Page', self)
+        new_page_btn = QAction(QIcon('icons/new_page.png'), '', self)
+        new_page_btn.setToolTip('Open a new page')
         new_page_btn.triggered.connect(self.navigate_new_page)
         navbar.addAction(new_page_btn)
 
         self.url_bar = QLineEdit()
+        self.url_bar.setPlaceholderText('Enter URL here...')
         self.url_bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.url_bar.setStyleSheet("border: 1px solid #CCCCCC; border-radius: 15px; padding: 6px;")
         self.url_bar.returnPressed.connect(self.navigate_to_url)
@@ -135,14 +141,17 @@ class Browser(QMainWindow):
         self.addToolBar(Qt.BottomToolBarArea, ai_toolbar)
 
         summarize_btn = QAction("Summarize", self)
+        summarize_btn.setToolTip('Summarize the content of the current page')
         summarize_btn.triggered.connect(self.summarize_page)
         ai_toolbar.addAction(summarize_btn)
 
         sentiment_btn = QAction("Analyze Sentiment", self)
+        sentiment_btn.setToolTip('Analyze the sentiment of the content of the current page')
         sentiment_btn.triggered.connect(self.analyze_page_sentiment)
         ai_toolbar.addAction(sentiment_btn)
 
         qa_btn = QAction("Ask Question", self)
+        qa_btn.setToolTip('Ask a question about the content of the current page')
         qa_btn.triggered.connect(self.ask_question)
         ai_toolbar.addAction(qa_btn)
 
@@ -161,10 +170,11 @@ class Browser(QMainWindow):
 
         # Create an animation for the opacity effect
         self.animation = QPropertyAnimation(self.opacity_effect, b"opacity")
-        self.animation.setDuration(2000)  # 2 seconds for fade in and out
-        self.animation.setKeyValueAt(0, 0.0)
-        self.animation.setKeyValueAt(0.5, 1.0)
-        self.animation.setKeyValueAt(1, 0.0)
+        self.animation.setDuration(2000)
+        self.animation.setStartValue(0.0)
+        self.animation.setKeyValueAt(0.25, 1.0)
+        self.animation.setKeyValueAt(0.75, 1.0)
+        self.animation.setEndValue(0.0)
         self.animation.finished.connect(self.label.deleteLater)
         self.animation.start()
 
@@ -236,21 +246,36 @@ class Browser(QMainWindow):
             QMessageBox.warning(self, "Download Failed", "The file could not be downloaded.")
 
     def summarize_page(self):
-        page_text = self.browser.page().toPlainText()
-        summary = self.ai_functions.summarize_text(page_text)
-        QMessageBox.information(self, "Page Summary", summary)
+        self.browser.page().toPlainText(self.process_summary)
+
+    def process_summary(self, page_text):
+        try:
+            summary = self.ai_functions.summarize_text(page_text)
+            QMessageBox.information(self, "Page Summary", summary)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to summarize the page: {str(e)}")
 
     def analyze_page_sentiment(self):
-        page_text = self.browser.page().toPlainText()
-        sentiment = self.ai_functions.analyze_sentiment(page_text)
-        QMessageBox.information(self, "Sentiment Analysis", f"Sentiment: {sentiment}")
+        self.browser.page().toPlainText(self.process_sentiment)
+
+    def process_sentiment(self, page_text):
+        try:
+            sentiment = self.ai_functions.analyze_sentiment(page_text)
+            QMessageBox.information(self, "Sentiment Analysis", f"Sentiment: {sentiment}")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to analyze sentiment: {str(e)}")
 
     def ask_question(self):
         question, ok = QInputDialog.getText(self, "Ask a Question", "Enter your question:")
         if ok and question:
-            page_text = self.browser.page().toPlainText()
+            self.browser.page().toPlainText(lambda page_text: self.process_question(page_text, question))
+
+    def process_question(self, page_text, question):
+        try:
             answer = self.ai_functions.answer_question(page_text, question)
             QMessageBox.information(self, "Answer", answer)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to get the answer: {str(e)}")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -260,6 +285,11 @@ if __name__ == '__main__':
     font = QFont('Helvetica Neue', 12)
     app.setFont(font)
     app.setStyle('Fusion')
+
+    # Use Chromium backend for QtWebEngine
+    from PyQt5.QtWebEngineWidgets import QWebEngineSettings
+    QWebEngineSettings.defaultSettings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
+
 
     window = Browser()
     app.exec_()
