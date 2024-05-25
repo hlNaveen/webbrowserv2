@@ -1,4 +1,4 @@
-#ai functions.py
+# ai_functions.py
 
 from transformers import pipeline
 from transformers.pipelines import AggregationStrategy
