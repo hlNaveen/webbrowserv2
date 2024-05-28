@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encro Browser Home</title>
+    <title>Enrco</title>
     <style>
         body {
             margin: 0;
@@ -16,6 +16,8 @@
             background-color: #f0f0f5;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             color: #333;
+            overflow: hidden;
+            animation: fadeInBody 1s ease forwards;
         }
 
         .title {
@@ -23,6 +25,7 @@
             font-weight: 600;
             margin-bottom: 20px;
             color: #333;
+            animation: fadeInTitle 1s ease forwards;
         }
 
         .search-bar {
@@ -30,8 +33,9 @@
             width: 80%;
             max-width: 600px;
             position: relative;
+            animation: fadeInSearch 1.5s ease forwards;
         }
-        
+
         .search-bar input {
             width: 100%;
             padding: 15px 20px;
@@ -41,13 +45,16 @@
             background-color: #fff;
             color: #333;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: border 0.3s ease, box-shadow 0.3s ease;
+            transition: border 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            animation: fadeInInput 2s ease forwards;
         }
 
         .search-bar input:focus {
             border-color: #007bff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             outline: none;
+            background-color: #eef6ff;
+            animation: focusInput 0.3s ease forwards;
         }
 
         .shortcuts {
@@ -55,6 +62,7 @@
             flex-wrap: wrap;
             justify-content: center;
             margin-top: 40px;
+            animation: fadeInShortcutsContainer 2s ease forwards;
         }
 
         .shortcut {
@@ -65,18 +73,22 @@
             background-color: #fff;
             padding: 10px;
             border-radius: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             position: relative;
+            opacity: 0;
+            transform: scale(0.5);
         }
 
         .shortcut:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: #f8f9fa;
+            animation: hoverShortcut 0.3s ease forwards;
         }
 
         .shortcut img {
@@ -89,11 +101,13 @@
             margin: 5px 0 0;
             font-size: 12px;
             color: #333;
+            transition: color 0.3s ease;
         }
 
         .shortcut a {
             text-decoration: none;
             color: inherit;
+            transition: color 0.3s ease;
         }
 
         .shortcut .remove-button {
@@ -113,10 +127,12 @@
             font-size: 12px;
             line-height: 12px;
             display: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .shortcut.edit-mode .remove-button {
             display: flex;
+            animation: fadeInRemoveButton 0.3s ease forwards;
         }
 
         .edit-button {
@@ -130,7 +146,7 @@
             width: 50px;
             height: 50px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -143,6 +159,8 @@
 
         .edit-button:hover {
             background-color: #0056b3;
+            transform: rotate(90deg);
+            animation: hoverEditButton 0.3s ease forwards;
         }
 
         .edit-form {
@@ -154,6 +172,7 @@
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
+            animation: fadeInEditForm 0.5s ease;
         }
 
         .edit-form input, .edit-form button {
@@ -170,6 +189,7 @@
             border-color: #007bff;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             outline: none;
+            animation: focusInput 0.3s ease forwards;
         }
 
         .edit-form button {
@@ -183,19 +203,117 @@
 
         .edit-form button:hover {
             background-color: #218838;
+            animation: hoverButton 0.3s ease forwards;
+        }
+
+        .customize-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .customize-button img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .customize-button:hover {
+            background-color: #5a6268;
+            transform: rotate(90deg);
+            animation: hoverEditButton 0.3s ease forwards;
+        }
+
+        @keyframes fadeInBody {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInTitle {
+            0% { opacity: 0; transform: translateY(-50px) scale(0.5); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeInSearch {
+            0% { opacity: 0; transform: translateY(-30px) scale(0.8); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeInShortcutsContainer {
+            0% { opacity: 0; transform: translateY(20px) scale(0.5); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeInShortcuts {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInInput {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes focusInput {
+            0% { background-color: #fff; }
+            100% { background-color: #eef6ff; }
+        }
+
+        @keyframes fadeInRemoveButton {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes hoverShortcut {
+            0% { background-color: #fff; }
+            100% { background-color: #f8f9fa; }
+        }
+
+        @keyframes hoverEditButton {
+            0% { transform: rotate(0); }
+            100% { transform: rotate(90deg); }
+        }
+
+        @keyframes fadeInEditForm {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes hoverButton {
+            0% { background-color: #28a745; }
+            100% { background-color: #218838; }
         }
     </style>
 </head>
 <body>
-    <div class="title">Enrco</div>
+    <div class="title">Encro</div>
     <div class="search-bar">
         <input type="text" placeholder="Search the web" id="searchInput">
     </div>
     <div class="shortcuts" id="shortcuts">
-        <!-- Shortcuts will be injected here dynamically -->
+
     </div>
     <button class="edit-button" id="editButton">
         <img src="https://img.icons8.com/ios-filled/50/ffffff/edit.png" alt="Edit">
+    </button>
+    <button class="customize-button" id="customizeButton">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/settings.png" alt="Customize">
     </button>
     <div class="edit-form" id="editForm">
         <input type="text" placeholder="Name" id="shortcutName">
@@ -209,22 +327,23 @@
                 window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
             }
         });
-    
+
         let shortcuts = [
             { name: 'Google', domain: 'google.com' },
             { name: 'YouTube', domain: 'youtube.com' },
             { name: 'Facebook', domain: 'facebook.com' },
             { name: 'Twitter', domain: 'twitter.com' }
         ];
-    
+
         const shortcutsContainer = document.getElementById('shortcuts');
-    
+
         function renderShortcuts() {
             shortcutsContainer.innerHTML = '';
             shortcuts.forEach((shortcut, index) => {
                 const shortcutElement = document.createElement('div');
                 shortcutElement.classList.add('shortcut');
-    
+                shortcutElement.style.animation = `fadeInShortcuts ${0.5 + index * 0.1}s ease forwards`;
+
                 const imgUrl = `https://logo.clearbit.com/${shortcut.domain}`;
                 shortcutElement.innerHTML = `
                     <a href="https://${shortcut.domain}">
@@ -237,7 +356,7 @@
             });
             addRemoveButtonEventListeners();
         }
-    
+
         function addRemoveButtonEventListeners() {
             const removeButtons = document.querySelectorAll('.remove-button');
             removeButtons.forEach(button => {
@@ -248,9 +367,9 @@
                 });
             });
         }
-    
+
         renderShortcuts();
-    
+
         document.getElementById('editButton').addEventListener('click', function() {
             const editForm = document.getElementById('editForm');
             const shortcutsElements = document.querySelectorAll('.shortcut');
@@ -258,19 +377,19 @@
             shortcutsElements.forEach(element => {
                 element.classList.toggle('edit-mode');
             });
-            // Remove edit-mode class from all shortcuts if edit mode is exited
+
             if (editForm.style.display === 'none') {
                 shortcutsElements.forEach(element => {
                     element.classList.remove('edit-mode');
                 });
             }
         });
-    
+
         document.getElementById('addShortcutButton').addEventListener('click', function() {
             const nameInput = document.getElementById('shortcutName');
             const domainInput = document.getElementById('shortcutDomain');
             const newShortcut = { name: nameInput.value, domain: domainInput.value };
-    
+
             if (newShortcut.name && newShortcut.domain) {
                 shortcuts.push(newShortcut);
                 renderShortcuts();
@@ -285,7 +404,17 @@
                 alert('Please fill in both fields');
             }
         });
+
+        window.addEventListener('load', () => {
+            const shortcutsElements = document.querySelectorAll('.shortcut');
+            shortcutsElements.forEach((element, index) => {
+                element.style.animation = `fadeInShortcuts ${1 + index * 0.2}s ease forwards`;
+            });
+        });
+
+        document.getElementById('customizeButton').addEventListener('click', function() {
+            alert('Customization options will be added here!');
+        });
     </script>
-    
 </body>
 </html>
