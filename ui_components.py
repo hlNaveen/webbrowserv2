@@ -1,46 +1,84 @@
-from PyQt5.QtWidgets import QAction, QToolBar, QLineEdit, QLabel, QMenuBar
+from PyQt5.QtWidgets import QAction, QToolBar, QLineEdit, QMenuBar, QToolButton, QMenu
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 
-def create_toolbar(browser):
+def create_nav_toolbar(browser):
     toolbar = QToolBar()
-    toolbar.setIconSize(QSize(16, 16))
-    toolbar.setFixedHeight(40)
+    toolbar.setIconSize(QSize(24, 24))
+    toolbar.setFixedHeight(50)
+    toolbar.setMovable(False)
+    toolbar.setStyleSheet("""
+        QToolBar {
+            background-color: #ffffff;
+            border: 1px solid #dcdcdc;
+            border-radius: 15px;
+            padding: 5px;
+            margin: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        QToolButton {
+            background-color: #ffffff;
+            border: 1px solid #dcdcdc;
+            border-radius: 15px;
+            padding: 8px;
+            margin: 3px;
+        }
+        QToolButton:hover {
+            background-color: #f0f0f0;
+        }
+    """)
 
-    back_action = QAction(QIcon.fromTheme("go-previous"), "Back", browser)
+    back_action = QAction(QIcon('icons/back.png'), "Back", browser)
     back_action.triggered.connect(browser.navigate_back)
     toolbar.addAction(back_action)
 
-    forward_action = QAction(QIcon.fromTheme("go-next"), "Forward", browser)
+    forward_action = QAction(QIcon('icons/forward.png'), "Forward", browser)
     forward_action.triggered.connect(browser.navigate_forward)
     toolbar.addAction(forward_action)
 
-    reload_action = QAction(QIcon.fromTheme("view-refresh"), "Reload", browser)
+    reload_action = QAction(QIcon('icons/reload.png'), "Reload", browser)
     reload_action.triggered.connect(browser.reload_page)
     toolbar.addAction(reload_action)
 
-    home_action = QAction(QIcon.fromTheme("go-home"), "Home", browser)
+    home_action = QAction(QIcon('icons/home.png'), "Home", browser)
     home_action.triggered.connect(browser.navigate_home)
     toolbar.addAction(home_action)
 
-    toolbar.addSeparator()
+    return toolbar
 
-    browser.url_bar.setFixedWidth(600)
+def create_url_toolbar(browser):
+    toolbar = QToolBar()
+    toolbar.setIconSize(QSize(24, 24))
+    toolbar.setFixedHeight(50)
+    toolbar.setMovable(False)
+    toolbar.setStyleSheet("""
+        QToolBar {
+            background-color: #ffffff;
+            border: 1px solid #dcdcdc;
+            border-radius: 15px;
+            padding: 5px;
+            margin: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+    """)
+
+    browser.url_bar.setFixedWidth(800)
     toolbar.addWidget(browser.url_bar)
 
-    toolbar.addSeparator()
+    menu_button = QToolButton()
+    menu_button.setIcon(QIcon('icons/menu.png'))
+    menu_button.setStyleSheet("padding: 8px; border-radius: 15px;")
+    menu = QMenu()
+    menu_button.setMenu(menu)
+    menu_button.setPopupMode(QToolButton.InstantPopup)
 
-    bookmark_action = QAction(QIcon.fromTheme("bookmark-new"), "Add Bookmark", browser)
-    bookmark_action.triggered.connect(browser.add_bookmark)
-    toolbar.addAction(bookmark_action)
+    # Menu actions
+    menu.addAction("Zoom In", browser.zoom_in)
+    menu.addAction("Zoom Out", browser.zoom_out)
+    menu.addAction("Toggle Dark Mode", browser.toggle_dark_mode)
+    menu.addAction("Print", browser.print_page)
 
-    bookmarks_action = QAction(QIcon.fromTheme("document-open"), "Show Bookmarks", browser)
-    bookmarks_action.triggered.connect(browser.show_bookmarks)
-    toolbar.addAction(bookmarks_action)
-
-    history_action = QAction(QIcon.fromTheme("document-open-recent"), "Show History", browser)
-    history_action.triggered.connect(browser.show_history)
-    toolbar.addAction(history_action)
+    toolbar.addWidget(menu_button)
 
     return toolbar
 
@@ -57,10 +95,6 @@ def create_menu(browser):
     print_action.triggered.connect(browser.print_page)
     file_menu.addAction(print_action)
 
-    exit_action = QAction("Exit", browser)
-    exit_action.triggered.connect(browser.close)
-    file_menu.addAction(exit_action)
-
     view_menu = menubar.addMenu("View")
 
     zoom_in_action = QAction("Zoom In", browser)
@@ -76,21 +110,3 @@ def create_menu(browser):
     view_menu.addAction(dark_mode_action)
 
     return menubar
-
-def create_find_toolbar(browser):
-    find_toolbar = QToolBar("Find")
-    find_toolbar.setIconSize(QSize(16, 16))
-    find_toolbar.setFixedHeight(40)
-    
-    find_label = QLabel("Find:")
-    find_toolbar.addWidget(find_label)
-    
-    browser.find_input = QLineEdit()
-    browser.find_input.setFixedWidth(300)
-    find_toolbar.addWidget(browser.find_input)
-    
-    find_action = QAction("Find", browser)
-    find_action.triggered.connect(lambda: browser.find_text(browser.find_input.text()))
-    find_toolbar.addAction(find_action)
-
-    return find_toolbar

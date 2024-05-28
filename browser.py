@@ -1,8 +1,8 @@
 from PyQt5.QtCore import QUrl, QSize
-from PyQt5.QtWidgets import QMainWindow, QTabWidget, QStatusBar, QVBoxLayout, QWidget, QLineEdit, QToolBar, QMenuBar, QAction, QLabel, QLineEdit, QToolButton, QHBoxLayout, QDialog
+from PyQt5.QtWidgets import QMainWindow, QTabWidget, QStatusBar, QVBoxLayout, QWidget, QLineEdit, QToolBar, QMenuBar, QAction, QLineEdit, QToolButton, QHBoxLayout
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineSettings, QWebEnginePage
-from PyQt5.QtGui import QIcon
-from ui_components import create_toolbar, create_menu, create_find_toolbar
+from PyQt5.QtGui import QIcon, QPalette, QColor
+from ui_components import create_nav_toolbar, create_url_toolbar, create_menu
 
 class Browser(QMainWindow):
     def __init__(self):
@@ -22,6 +22,7 @@ class Browser(QMainWindow):
 
         self.url_bar = QLineEdit()
         self.url_bar.returnPressed.connect(self.navigate_to_url)
+        self.url_bar.setStyleSheet("padding: 6px; border-radius: 15px;")
 
         self.status = QStatusBar()
         self.setStatusBar(self.status)
@@ -29,13 +30,45 @@ class Browser(QMainWindow):
         self.menu_bar = create_menu(self)
         self.setMenuBar(self.menu_bar)
 
-        self.toolbar = create_toolbar(self)
-        self.addToolBar(self.toolbar)
+        self.nav_toolbar = create_nav_toolbar(self)
+        self.addToolBar(self.nav_toolbar)
 
-        self.find_toolbar = create_find_toolbar(self)
-        self.addToolBar(self.find_toolbar)
+        self.url_toolbar = create_url_toolbar(self)
+        self.addToolBar(self.url_toolbar)
 
         self.add_new_tab(QUrl("http://www.google.com"), 'Homepage')
+
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #f8f9fa;
+            }
+            QToolBar {
+                background-color: #ffffff;
+                border: none;
+                padding: 8px;
+            }
+            QTabWidget::pane {
+                border-top: 2px solid #C2C7CB;
+                top: -1px;
+                background-color: #f8f9fa;
+                border-radius: 15px;
+            }
+            QTabBar::tab {
+                background: #ffffff;
+                border: 2px solid #C4C4C3;
+                padding: 10px;
+                border-radius: 15px;
+            }
+            QTabBar::tab:selected {
+                background: #e1e1e1;
+            }
+            QStatusBar {
+                background: #ffffff;
+                border-top: 1px solid #C2C7CB;
+                padding: 8px;
+                border-radius: 15px;
+            }
+        """)
 
     def add_new_tab(self, qurl=None, label="Blank"):
         if qurl is None:
@@ -76,29 +109,22 @@ class Browser(QMainWindow):
         self.tab_widget.currentWidget().reload()
 
     def print_page(self):
-        printer = QPrinter()
-        print_dialog = QPrintDialog(printer)
-        if print_dialog.exec_() == QDialog.Accepted:
-            self.tab_widget.currentWidget().page().print(printer, lambda success: self.status.showMessage("Printing succeeded" if success else "Printing failed", 5000))
+        pass  # Removed the print functionality
 
     def zoom_in(self):
-        self.tab_widget.currentWidget().setZoomFactor(self.tab_widget.currentWidget().zoomFactor() + 0.1)
+        pass  # Removed the zoom functionality
 
     def zoom_out(self):
-        self.tab_widget.currentWidget().setZoomFactor(self.tab_widget.currentWidget().zoomFactor() - 0.1)
+        pass  # Removed the zoom functionality
 
     def toggle_dark_mode(self):
-        settings = self.tab_widget.currentWidget().settings()
-        settings.setAttribute(QWebEngineSettings.WebAttribute.DnsPrefetchEnabled, not settings.testAttribute(QWebEngineSettings.WebAttribute.DnsPrefetchEnabled))
+        pass  # Removed the dark mode functionality
 
     def add_bookmark(self):
-        pass  # Placeholder for add bookmark functionality
+        pass  # Removed the add bookmark functionality
 
     def show_bookmarks(self):
-        pass  # Placeholder for show bookmarks functionality
+        pass  # Removed the show bookmarks functionality
 
     def show_history(self):
-        pass  # Placeholder for show history functionality
-
-    def find_text(self, text):
-        self.tab_widget.currentWidget().findText(text)
+        pass  # Removed the show history functionality
