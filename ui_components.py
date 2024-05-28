@@ -1,105 +1,96 @@
-from PyQt5.QtWidgets import QToolBar, QAction, QMenuBar, QMenu, QLineEdit
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QAction, QToolBar, QLineEdit, QLabel, QMenuBar
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 
 def create_toolbar(browser):
     toolbar = QToolBar()
-    toolbar.setIconSize(QSize(24, 24))
+    toolbar.setIconSize(QSize(16, 16))
+    toolbar.setFixedHeight(40)
 
-    back_btn = QAction('◀', browser)
-    back_btn.setFont(QFont("Arial", 16))
-    back_btn.triggered.connect(browser.navigate_back)
-    toolbar.addAction(back_btn)
+    back_action = QAction(QIcon.fromTheme("go-previous"), "Back", browser)
+    back_action.triggered.connect(browser.navigate_back)
+    toolbar.addAction(back_action)
 
-    forward_btn = QAction('▶', browser)
-    forward_btn.setFont(QFont("Arial", 16))
-    forward_btn.triggered.connect(browser.navigate_forward)
-    toolbar.addAction(forward_btn)
+    forward_action = QAction(QIcon.fromTheme("go-next"), "Forward", browser)
+    forward_action.triggered.connect(browser.navigate_forward)
+    toolbar.addAction(forward_action)
 
-    reload_btn = QAction('↻', browser)
-    reload_btn.setFont(QFont("Arial", 16))
-    reload_btn.triggered.connect(browser.reload_page)
-    toolbar.addAction(reload_btn)
+    reload_action = QAction(QIcon.fromTheme("view-refresh"), "Reload", browser)
+    reload_action.triggered.connect(browser.reload_page)
+    toolbar.addAction(reload_action)
 
-    home_btn = QAction('⌂', browser)
-    home_btn.setFont(QFont("Arial", 16))
-    home_btn.triggered.connect(browser.navigate_home)
-    toolbar.addAction(home_btn)
-
-    bookmark_btn = QAction('★', browser)
-    bookmark_btn.setFont(QFont("Arial", 16))
-    bookmark_btn.triggered.connect(browser.add_bookmark)
-    toolbar.addAction(bookmark_btn)
-
-    find_btn = QAction('🔍', browser)
-    find_btn.setFont(QFont("Arial", 16))
-    find_btn.triggered.connect(lambda: browser.find_toolbar.setVisible(not browser.find_toolbar.isVisible()))
-    toolbar.addAction(find_btn)
-
-    zoom_in_btn = QAction('A+', browser)
-    zoom_in_btn.setFont(QFont("Arial", 16))
-    zoom_in_btn.triggered.connect(browser.zoom_in)
-    toolbar.addAction(zoom_in_btn)
-
-    zoom_out_btn = QAction('A-', browser)
-    zoom_out_btn.setFont(QFont("Arial", 16))
-    zoom_out_btn.triggered.connect(browser.zoom_out)
-    toolbar.addAction(zoom_out_btn)
-
-    dark_mode_btn = QAction('🌙', browser)
-    dark_mode_btn.setFont(QFont("Arial", 16))
-    dark_mode_btn.triggered.connect(browser.toggle_dark_mode)
-    toolbar.addAction(dark_mode_btn)
-
-    print_btn = QAction('🖨', browser)
-    print_btn.setFont(QFont("Arial", 16))
-    print_btn.triggered.connect(browser.print_page)
-    toolbar.addAction(print_btn)
+    home_action = QAction(QIcon.fromTheme("go-home"), "Home", browser)
+    home_action.triggered.connect(browser.navigate_home)
+    toolbar.addAction(home_action)
 
     toolbar.addSeparator()
+
+    browser.url_bar.setFixedWidth(600)
     toolbar.addWidget(browser.url_bar)
+
+    toolbar.addSeparator()
+
+    bookmark_action = QAction(QIcon.fromTheme("bookmark-new"), "Add Bookmark", browser)
+    bookmark_action.triggered.connect(browser.add_bookmark)
+    toolbar.addAction(bookmark_action)
+
+    bookmarks_action = QAction(QIcon.fromTheme("document-open"), "Show Bookmarks", browser)
+    bookmarks_action.triggered.connect(browser.show_bookmarks)
+    toolbar.addAction(bookmarks_action)
+
+    history_action = QAction(QIcon.fromTheme("document-open-recent"), "Show History", browser)
+    history_action.triggered.connect(browser.show_history)
+    toolbar.addAction(history_action)
 
     return toolbar
 
 def create_menu(browser):
     menubar = QMenuBar()
 
-    file_menu = menubar.addMenu('File')
+    file_menu = menubar.addMenu("File")
 
-    new_tab_action = QAction('New Tab', browser)
+    new_tab_action = QAction("New Tab", browser)
     new_tab_action.triggered.connect(lambda: browser.add_new_tab())
     file_menu.addAction(new_tab_action)
 
-    bookmarks_menu = menubar.addMenu('Bookmarks')
+    print_action = QAction("Print", browser)
+    print_action.triggered.connect(browser.print_page)
+    file_menu.addAction(print_action)
 
-    show_bookmarks_action = QAction('Show Bookmarks', browser)
-    show_bookmarks_action.triggered.connect(browser.show_bookmarks)
-    bookmarks_menu.addAction(show_bookmarks_action)
+    exit_action = QAction("Exit", browser)
+    exit_action.triggered.connect(browser.close)
+    file_menu.addAction(exit_action)
 
-    history_menu = menubar.addMenu('History')
+    view_menu = menubar.addMenu("View")
 
-    show_history_action = QAction('Show History', browser)
-    show_history_action.triggered.connect(browser.show_history)
-    history_menu.addAction(show_history_action)
+    zoom_in_action = QAction("Zoom In", browser)
+    zoom_in_action.triggered.connect(browser.zoom_in)
+    view_menu.addAction(zoom_in_action)
+
+    zoom_out_action = QAction("Zoom Out", browser)
+    zoom_out_action.triggered.connect(browser.zoom_out)
+    view_menu.addAction(zoom_out_action)
+
+    dark_mode_action = QAction("Toggle Dark Mode", browser)
+    dark_mode_action.triggered.connect(browser.toggle_dark_mode)
+    view_menu.addAction(dark_mode_action)
 
     return menubar
 
-def create_download_manager(browser):
-    pass
-
 def create_find_toolbar(browser):
-    toolbar = QToolBar()
-    toolbar.setIconSize(QSize(16, 16))
+    find_toolbar = QToolBar("Find")
+    find_toolbar.setIconSize(QSize(16, 16))
+    find_toolbar.setFixedHeight(40)
+    
+    find_label = QLabel("Find:")
+    find_toolbar.addWidget(find_label)
+    
+    browser.find_input = QLineEdit()
+    browser.find_input.setFixedWidth(300)
+    find_toolbar.addWidget(browser.find_input)
+    
+    find_action = QAction("Find", browser)
+    find_action.triggered.connect(lambda: browser.find_text(browser.find_input.text()))
+    find_toolbar.addAction(find_action)
 
-    find_text_box = QLineEdit()
-    find_text_box.setPlaceholderText("Find text...")
-    toolbar.addWidget(find_text_box)
-
-    find_btn = QAction('🔍', browser)
-    find_btn.setFont(QFont("Arial", 16))
-    find_btn.triggered.connect(lambda: browser.find_text(find_text_box.text()))
-    toolbar.addAction(find_btn)
-
-    toolbar.setVisible(False)
-    browser.addToolBar(toolbar)
-    return toolbar
+    return find_toolbar
