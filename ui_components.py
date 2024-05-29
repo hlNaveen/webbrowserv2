@@ -1,112 +1,76 @@
-from PyQt5.QtWidgets import QAction, QToolBar, QLineEdit, QMenuBar, QToolButton, QMenu
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSize
+from PyQt5.QtWidgets import QAction, QToolBar, QLineEdit, QMenu, QToolButton, QSizePolicy
+from PyQt5.QtCore import Qt
 
-def create_nav_toolbar(browser):
-    toolbar = QToolBar()
-    toolbar.setIconSize(QSize(24, 24))
-    toolbar.setFixedHeight(50)
-    toolbar.setMovable(False)
-    toolbar.setStyleSheet("""
-        QToolBar {
-            background-color: #ffffff;
-            border: 1px solid #dcdcdc;
-            border-radius: 15px;
-            padding: 5px;
-            margin: 5px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        QToolButton {
-            background-color: #ffffff;
-            border: 1px solid #dcdcdc;
-            border-radius: 15px;
-            padding: 8px;
-            margin: 3px;
-        }
-        QToolButton:hover {
-            background-color: #f0f0f0;
-        }
-    """)
+def create_toolbar(browser):
+    toolbar = QToolBar("Main Toolbar")
+    toolbar.setMovable(False)  # Disable moving
 
-    back_action = QAction(QIcon('icons/back.png'), "Back", browser)
-    back_action.triggered.connect(browser.navigate_back)
-    toolbar.addAction(back_action)
+    back_button = QToolButton()
+    back_button.setText("Back")
+    back_button.setObjectName("navButton")
+    back_button.clicked.connect(browser.navigate_back)
+    toolbar.addWidget(back_button)
 
-    forward_action = QAction(QIcon('icons/forward.png'), "Forward", browser)
-    forward_action.triggered.connect(browser.navigate_forward)
-    toolbar.addAction(forward_action)
+    forward_button = QToolButton()
+    forward_button.setText("Forward")
+    forward_button.setObjectName("navButton")
+    forward_button.clicked.connect(browser.navigate_forward)
+    toolbar.addWidget(forward_button)
 
-    reload_action = QAction(QIcon('icons/reload.png'), "Reload", browser)
-    reload_action.triggered.connect(browser.reload_page)
-    toolbar.addAction(reload_action)
+    reload_button = QToolButton()
+    reload_button.setText("Reload")
+    reload_button.setObjectName("navButton")
+    reload_button.clicked.connect(browser.reload_page)
+    toolbar.addWidget(reload_button)
 
-    home_action = QAction(QIcon('icons/home.png'), "Home", browser)
-    home_action.triggered.connect(browser.navigate_home)
-    toolbar.addAction(home_action)
+    home_button = QToolButton()
+    home_button.setText("Home")
+    home_button.setObjectName("navButton")
+    home_button.clicked.connect(browser.navigate_home)
+    toolbar.addWidget(home_button)
 
-    return toolbar
-
-def create_url_toolbar(browser):
-    toolbar = QToolBar()
-    toolbar.setIconSize(QSize(24, 24))
-    toolbar.setFixedHeight(50)
-    toolbar.setMovable(False)
-    toolbar.setStyleSheet("""
-        QToolBar {
-            background-color: #ffffff;
-            border: 1px solid #dcdcdc;
-            border-radius: 15px;
-            padding: 5px;
-            margin: 5px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-    """)
-
-    browser.url_bar.setFixedWidth(800)
+    browser.url_bar = QLineEdit()
+    browser.url_bar.setObjectName("urlBar")
+    browser.url_bar.returnPressed.connect(browser.navigate_to_url)
     toolbar.addWidget(browser.url_bar)
 
     menu_button = QToolButton()
-    menu_button.setIcon(QIcon('icons/menu.png'))
-    menu_button.setStyleSheet("padding: 8px; border-radius: 15px;")
-    menu = QMenu()
+    menu_button.setText("Menu")
+    menu_button.setObjectName("menuButton")
+
+    menu = QMenu(menu_button)
+
+    new_tab_action = QAction("New Tab", browser)
+    new_tab_action.triggered.connect(browser.add_new_tab)
+    menu.addAction(new_tab_action)
+
+    zoom_action = menu.addMenu("Zoom")
+    zoom_in_action = QAction("Zoom In", browser)
+    zoom_in_action.triggered.connect(browser.zoom_in)
+    zoom_action.addAction(zoom_in_action)
+    zoom_out_action = QAction("Zoom Out", browser)
+    zoom_out_action.triggered.connect(browser.zoom_out)
+    zoom_action.addAction(zoom_out_action)
+
+    downloads_action = QAction("Downloads", browser)
+    downloads_action.triggered.connect(browser.show_downloads)
+    menu.addAction(downloads_action)
+
+    history_action = QAction("History", browser)
+    history_action.triggered.connect(browser.show_history)
+    menu.addAction(history_action)
+
+    settings_action = QAction("Settings", browser)
+    settings_action.triggered.connect(browser.show_settings)
+    menu.addAction(settings_action)
+
+    about_action = QAction("About", browser)
+    about_action.triggered.connect(browser.show_about)
+    menu.addAction(about_action)
+
     menu_button.setMenu(menu)
     menu_button.setPopupMode(QToolButton.InstantPopup)
-
-    # Menu actions
-    menu.addAction("Zoom In", browser.zoom_in)
-    menu.addAction("Zoom Out", browser.zoom_out)
-    menu.addAction("Toggle Dark Mode", browser.toggle_dark_mode)
-    menu.addAction("Print", browser.print_page)
-
+    menu_button.setStyleSheet("QToolButton::menu-indicator { image: none; }")  # Remove the arrow down icon
     toolbar.addWidget(menu_button)
 
     return toolbar
-
-def create_menu(browser):
-    menubar = QMenuBar()
-
-    file_menu = menubar.addMenu("File")
-
-    new_tab_action = QAction("New Tab", browser)
-    new_tab_action.triggered.connect(lambda: browser.add_new_tab())
-    file_menu.addAction(new_tab_action)
-
-    print_action = QAction("Print", browser)
-    print_action.triggered.connect(browser.print_page)
-    file_menu.addAction(print_action)
-
-    view_menu = menubar.addMenu("View")
-
-    zoom_in_action = QAction("Zoom In", browser)
-    zoom_in_action.triggered.connect(browser.zoom_in)
-    view_menu.addAction(zoom_in_action)
-
-    zoom_out_action = QAction("Zoom Out", browser)
-    zoom_out_action.triggered.connect(browser.zoom_out)
-    view_menu.addAction(zoom_out_action)
-
-    dark_mode_action = QAction("Toggle Dark Mode", browser)
-    dark_mode_action.triggered.connect(browser.toggle_dark_mode)
-    view_menu.addAction(dark_mode_action)
-
-    return menubar
