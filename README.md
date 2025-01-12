@@ -78,4 +78,4 @@ GitHub: hlNaveen
 
 
 
-Feel free to adjust details like email or additional features. Let me know if you need further mod
+Feel free to adjust additional features.
