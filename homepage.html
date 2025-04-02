@@ -344,7 +344,7 @@
                 shortcutElement.classList.add('shortcut');
                 shortcutElement.style.animation = `fadeInShortcuts ${0.5 + index * 0.1}s ease forwards`;
 
-                const imgUrl = `https://logo.clearbit.com/${shortcut.domain}`;
+                const imgUrl = `https://www.google.com/s2/favicons?sz=64&domain=${shortcut.domain}`;
                 shortcutElement.innerHTML = `
                     <a href="https://${shortcut.domain}">
                         <img src="${imgUrl}" alt="${shortcut.name}">
